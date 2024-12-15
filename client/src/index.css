@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    font-family: "Lexend", sans-serif;
+}
+.carousel-container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    position: relative;
+  }
+  
+  .carousel {
+    display: flex;
+    gap: 1px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px;
+    scrollbar-width: none;
+  }
+  
+  
+   .carousel-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 60px;
+    /* padding: 10px; */
+    text-align: center;
+    /* background-color: #f0f0f0; */
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  
+  .carousel-item.active {
+    /* background-color: #4caf50; */
+    color: #43AEA9;
+    /* font-weight: bold; */
+  }
+  .carousel-item.active::after{
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background-color: #43AEA9;
+    border-radius: 100%;
+    margin: 3px auto;
+  }
+  
+  .carousel-btn {
+    position: absolute;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #555;
+    cursor: pointer;
+    z-index: 1;
+  }
+  
+  .prev-btn {
+    left: 5px;
+  }
+  
+  .next-btn {
+    right: 5px;
+  }
+  
+
+  .glow-text {
+    text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #FF00FF;
+  }
+  
+  .glow-border {
+    border: 1px solid transparent;
+    background: linear-gradient(to right, #00FFFF, #FF00FF);
+    background-clip: padding-box;
+    box-shadow: 0 0 10px #00FFFF, 0 0 20px #FF00FF;
+  }
