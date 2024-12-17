@@ -6,16 +6,16 @@ function TaskBox() {
     setChecked(!checked);
   };
   return (
-    <div>
-      <div
-        className={`rounded-md p-3 flex items-center justify-between gap-4 `}
-        style={{
-          backgroundColor: checked
-            ? "rgb(187 247 208 / var(--tw-bg-opacity, 1))"
-            : "#F1F1F1",
-        }}
-      >
-        <div className="flex gap-4">
+    <div
+      className={`relative rounded-md p-3 flex items-center justify-between gap-4`}
+      style={{
+        backgroundColor: checked
+          ? "rgb(187 247 208 / var(--tw-bg-opacity, 1))"
+          : "#F1F1F1",
+      }}
+    >
+      <div className="flex justify-between w-full items-center">
+        <div className="flex gap-4 ">
           <div
             className={`w-5 h-5 border-2 border-slate-400 rounded-sm cursor-pointer ${
               checked ? "bg-green-600" : "bg-white"
@@ -41,7 +41,6 @@ function TaskBox() {
 
         <div data-swapy-handle>
           <svg
-            
             width="12"
             height="19"
             viewBox="0 0 12 19"
