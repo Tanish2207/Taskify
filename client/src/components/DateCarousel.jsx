@@ -1,32 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import moment from "moment/moment";
 
-const   DateCarousel = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+const DateCarousel = () => {
+  const [activeIndex, setActiveIndex] = useState(+moment().format("DD") - 1);
+  const carouselRef = useRef(null);
 
-  const dates = [
-    { day: "Mon", date: 11 },
-    { day: "Tue", date: 12 },
-    { day: "Wed", date: 13 },
-    { day: "Thu", date: 14 },
-    { day: "Fri", date: 15 },
-    { day: "Sat", date: 16 },
-    { day: "Sun", date: 17 },
-  ];
+  const currentMonthDates = Array.from(
+    { length: moment().daysInMonth() },
+    (x, i) => moment().startOf("month").add(i, "days")
+  );
 
-  const handleDateClick = (index) => {
-    setActiveIndex(index);
+  useEffect(() => {
+    if (carouselRef.current) {
+      const activeItem = carouselRef.current.children[activeIndex];
+      if (activeItem) {
+        activeItem.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    }
+  }, [activeIndex]);
+
+  const dates = currentMonthDates.map((x) => ({
+    day: x.format("ddd"),
+    date: x.format("DD"),
+    fullDate: x
+  }));
+
+  const handleDateClick = (dateObj) => {
+    console.log(dateObj.fullDate.format('YYYY-MM-DD'));
+    setActiveIndex(dateObj.date - 1);
   };
 
   return (
     <div className="carousel-container">
-      <div className="carousel">
+      <div
+        className="carousel"
+        ref={carouselRef}
+        style={{ display: "flex", overflowX: "auto" }}
+      >
         {dates.map((dateObj, index) => (
           <div
             key={index}
-            className={`carousel-item  ${activeIndex === index ? "active" : ""}`}
-            onClick={() => handleDateClick(index)}
+            className={`carousel-item  ${
+              activeIndex === index ? "active" : ""
+            }`}
+            onClick={() => handleDateClick(dateObj)}
           >
-            <p>{dateObj.day}</p> 
+            <p>{dateObj.day}</p>
             <p>{dateObj.date}</p>
           </div>
         ))}

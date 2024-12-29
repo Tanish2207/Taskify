@@ -20,14 +20,15 @@ app.post("/api/tasks", async (req, res) => {
   }
 });
 
-app.get("/api/tasks", async (req, res) => {
-  try {
-    const allTasks = await taskModel.find({});
-    res.status(200).json(allTasks);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// app.get("/api/tasks", async (req, res) => {
+//   try {
+//     const allTasks = await taskModel.find({});
+//     console.log(allTasks);
+//     res.status(200).json(allTasks);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 app.put("/api/tasks/:id", async (req, res) => {
   try {
@@ -82,9 +83,9 @@ const getTaskByDate = async (dateString) => {
   }
 };
 
-app.get("/api/tasks/:reqDate", async (req, res) => {
-  const { reqDate } = req.params;
-  temp = await getTaskByDate(reqDate);
+app.get("/api/tasks", async (req, res) => {
+  const { date } = req.query;
+  temp = await getTaskByDate(date);
   console.log(temp);
   if (temp.length === 0) {
     return res.status(404).json({ message: "No Task for this day" });

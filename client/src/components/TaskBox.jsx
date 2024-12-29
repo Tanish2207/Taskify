@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-function TaskBox() {
+const TaskBox = (props) => {
   const [checked, setChecked] = useState(false);
   const [swipeStart, setSwipeStart] = useState(null);
   const [swipeEnd, setSwipeEnd] = useState(null);
@@ -83,7 +83,7 @@ function TaskBox() {
                 </svg>
               )}
             </div>
-            <p>Complete this task</p>
+            <p>{props.task.title}</p>
           </div>
 
           <div data-swapy-handle>
