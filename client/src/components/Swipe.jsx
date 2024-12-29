@@ -1,27 +1,67 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-function SwipeTaskBox() {
+function Swipe() {
   const [checked, setChecked] = useState(false);
+  const [swipeStart, setSwipeStart] = useState(null);
+  const [swipeEnd, setSwipeEnd] = useState(null);
+  const [swipeDistance, setSwipeDistance] = useState(0);
+  const swipeRef = useRef(null);
+  const maxSwipeDistance = 100; // Maximum swipe distance
+
   const toggleCheckbox = () => {
     setChecked(!checked);
   };
-  return (
-    <div className="container relative h-10 ">
-        <div className="absolute top-0 left-0 leftSide bg-green-300 h-full w-1/2 border border-green-600">
-            <img src="pencil.png" width="15%" alt="" />
-        </div>
-        <div className="absolute right-0 rightSide bg-red-300 h-full w-1/2 border border-red-600">
-        <img src="dustbin.png" width="15%" alt="" /></div>
 
-      {/* <div>
-        <div
-          className={`relative rounded-md p-3 flex items-center justify-between gap-4  w-full`}
-          style={{
-            backgroundColor: checked
-              ? "rgb(187 247 208 / var(--tw-bg-opacity, 1))"
-              : "#F1F1F1",
-          }}
-        >
+  const handleTouchStart = (e) => {
+    setSwipeStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    const currentX = e.touches[0].clientX;
+    setSwipeEnd(currentX);
+    if (swipeStart !== null) {
+      let distance = currentX - swipeStart;
+      if (distance > maxSwipeDistance) distance = maxSwipeDistance;
+      if (distance < -maxSwipeDistance) distance = -maxSwipeDistance;
+      setSwipeDistance(distance);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeStart !== null && swipeEnd !== null) {
+      const finalSwipeDistance = swipeEnd - swipeStart;
+      if (finalSwipeDistance > 50) {
+        // Swipe right action (delete)
+        console.log("Swiped right: Delete");
+      } else if (finalSwipeDistance < -50) {
+        // Swipe left action (archive)
+        console.log("Swiped left: Archive");
+      }
+    }
+    setSwipeStart(null);
+    setSwipeEnd(null);
+    setSwipeDistance(0);
+  };
+
+  return (
+    <div className="relative">
+      <div className="absolute top-0 bg-green-300 w-1/2 p-3 -z-10">
+      <img src="edit.svg" alt="" /></div>
+      <div
+        className={`z-10 relative rounded-md p-3 flex items-center justify-between gap-4`}
+        style={{
+          backgroundColor: checked
+            ? "rgb(187 247 208 / var(--tw-bg-opacity, 1))"
+            : "#F1F1F1",
+          transform: `translateX(${swipeDistance}px)`,
+          transition: swipeDistance === 0 ? "transform 0.3s ease" : "none",
+        }}
+        ref={swipeRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="flex justify-between w-full items-center">
           <div className="flex gap-4 ">
             <div
               className={`w-5 h-5 border-2 border-slate-400 rounded-sm cursor-pointer ${
@@ -63,9 +103,11 @@ function SwipeTaskBox() {
             </svg>
           </div>
         </div>
-      </div> */}
+      </div>
+      <div className="absolute top-0 right-0 flex justify-end bg-red-300 w-1/2 p-3 -z-10">
+      <img src="delete.svg" alt="" /></div>
     </div>
   );
 }
 
-export default SwipeTaskBox;
+export default Swipe;
