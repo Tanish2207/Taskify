@@ -22,22 +22,26 @@ function DragDrop() {
       swapy.current?.destroy();
     };
   }, []);
+  const tanish = () => {
+    console.log("Tanish");
+    
+  }
 
   return (
     <div ref={container}>
       <div data-swapy-slot="T1">
         <div data-swapy-item="T1">
-          <TaskBox />
+          <TaskBox key={1} task={[]} handleInpTitle={tanish}/>
         </div>
       </div>
       <div data-swapy-slot="T2">
         <div data-swapy-item="T2">
-          <TaskBox />
+          <TaskBox key={2} task={[]} handleInpTitle={tanish}/>
         </div>
       </div>
       <div data-swapy-slot="T3">
         <div data-swapy-item="T3">
-          <TaskBox />
+          <TaskBox key={3} task={[]} handleInpTitle={tanish}/>
         </div>
       </div>
     </div>

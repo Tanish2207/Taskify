@@ -51,15 +51,19 @@ app.delete("/api/tasks/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Find and delete the task
     const task = await taskModel.findByIdAndDelete(id);
-    res.send(task);
+
     if (!task) {
+      // If task not found, return a 404 response
       return res.status(404).json({ message: "Task not found" });
     }
 
-    return res.status(500).json({ message: "Task Deleted Successfully" });
+    // Send success response if the task was deleted
+    return res.status(200).json({ message: "Task deleted successfully", task });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Catch any errors and send a 500 response
+    return res.status(500).json({ message: error.message });
   }
 });
 

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import moment from "moment/moment";
 
-const DateCarousel = () => {
-  const [activeIndex, setActiveIndex] = useState(+moment().format("DD") - 1);
+const DateCarousel = ({ onDateChange }) => {
+  const [activeIndex, setActiveIndex] = useState(moment().format("DD") - 1);
   const carouselRef = useRef(null);
 
   const currentMonthDates = Array.from(
@@ -26,11 +26,12 @@ const DateCarousel = () => {
   const dates = currentMonthDates.map((x) => ({
     day: x.format("ddd"),
     date: x.format("DD"),
-    fullDate: x
+    fullDate: x,
   }));
 
   const handleDateClick = (dateObj) => {
-    console.log(dateObj.fullDate.format('YYYY-MM-DD'));
+    onDateChange(dateObj.fullDate.format("YYYY-MM-DD"))
+    console.log(dateObj.fullDate.format("YYYY-MM-DD"));
     setActiveIndex(dateObj.date - 1);
   };
 

@@ -1,42 +1,94 @@
 import { useEffect, useState } from "react";
-import { get_tasks } from "../api/all_api";
+import { get_tasks, editTask, createTask, deleteTask } from "../api/all_api";
 import DateCarousel from "./DateCarousel";
 import TaskBox from "./TaskBox";
 import moment from "moment";
+import SearchBar from "./SearchBar";
 
 function Home() {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(
+    moment().format("YYYY-MM-DD")
+  );
+  const [completedFilter, setCompletedFilter] = useState(false);
+  const [searchResults, setSearchResults] = useState(tasks);
+
+  // ------------------------------- Callbacks (Child -> parent) -----------------------------
+  const handleNewTaskCreation = (tl) => {
+    console.log("tl = ", tl);
+    createTask(tl);
+  };
+
+  const handleTaskDeletion = (tid, tix) => {
+    const taskIndex = tasks.findIndex((task) => task.objectId === tid);
+    if (taskIndex !== -1) {
+      tasks.splice(taskIndex, 1);
+      setTasks([...tasks]); // Trigger re-render by updating state
+    }
+    deleteTask(tid);
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    console.log("This is Date: ", date);
+    console.log("This is selectedDate: ", selectedDate);
+  };
+
+  const handleTaskCompletion = (tid, tl, st) => {
+    const updatedTasks = tasks.map((task) => {
+      if (task.objectId === tid) {
+        return { ...task, completed: st };
+      }
+      return task;
+    });
+    editTask(tid, tl, st)
+    setTasks(updatedTasks);
+    setSearchResults(updatedTasks);
+  };
+
+  const handleEditedTitle = (tid, tl, st) => {
+    const updatedTasks = tasks.map((task) => {
+      if (task.objectId === tid) {
+        return { ...task, title: tl };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+    setSearchResults(updatedTasks);
+    editTask(tid, tl, st);
+  };
+  // ------------------------------------ GET API --------------------------------
   useEffect(() => {
     // moment().format("YYYY-MM-DD")
-    get_tasks(moment().format("YYYY-MM-DD")).then((res) => {
-      console.log("From Home.jsx, res = ", res);
+    get_tasks(selectedDate).then((res) => {
       if (res.error) {
         setError(res.error);
         setTasks([]);
       } else {
-        setTasks(
-          res?.map((task, index) => ({
-            id: index,
-            title: task.taskContent,
-            completed: false,
-          }))
-        );
+        let fetchedTasks = res.map((task, index) => ({
+          id: index,
+          title: task.taskContent,
+          completed: task.status == 1,
+          objectId: task._id,
+        }));
+        setTasks(fetchedTasks);
+        setSearchResults(fetchedTasks);
         setError(null);
       }
     });
-  }, []);
+  }, [selectedDate]);
 
-  let countCompletedTasks = 1;
+  let countCompletedTasks = tasks.filter((t) => t.completed).length;
   const addTask = () => {
-    setTasks([
-      ...tasks,
-      {
-        id: tasks.length,
-        title: "",
-        completed: false,
-      },
-    ]);
+    const newTask = {
+      id: tasks.length,
+      title: "",
+      completed: false,
+    };
+    setTasks([...tasks, newTask]);
+    setSearchResults([...tasks, newTask])
+    setError(null);
   };
 
   const calcWidth = () => {
@@ -45,35 +97,37 @@ function Home() {
       : "0%";
   };
   const primaryColor = "#47E4CA";
-  const [completedFilter, setCompletedFilter] = useState(false);
+
   return (
     <div>
-      {/* <p className="text-green-600">Hello</p> */}
       <nav className="flex justify-between items-center mx-8 mt-4 mb-3">
         <h2 className="font-semibold text-xl">Taskify</h2>
         <img src="user_profile.png" alt="" />
       </nav>
+
+      {/* search bar */}
       <div className="px-6">
-        <div
-          className="w-full px-4 h-10 py-2 align-middle rounded-lg flex gap-10"
-          style={{ backgroundColor: "#F1F1F1" }}
-        >
-          <img src="search.svg" className="" alt="" />
-          <p>Search task</p>
-        </div>
+        <SearchBar tasks={tasks} setSearchResults={setSearchResults} />
       </div>
 
-      <DateCarousel />
+      <DateCarousel onDateChange={handleDateChange} />
 
       {/* progress bar */}
       <div className="px-6 relative">
         <div
-          className="relative w-full h-8 flex justify-center items-center"
-          style={{ backgroundColor: "#EEEEEE" }}
+          className="relative w-full h-8 flex justify-center items-center border border-slate-300"
+          style={{
+            backgroundColor: "#EEEEEE",
+            boxShadow:
+              "rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px",
+          }}
         >
           <div
-            className="absolute left-0 h-full rounded-sm"
-            style={{ backgroundColor: "#47E4CA", width: calcWidth() }}
+            className="absolute left-0 h-full rounded-sm transition-all ease-in-out duration-1000"
+            style={{
+              background: "linear-gradient(90deg, #4AF2E4 0%, #3EEC86 100%)",
+              width: calcWidth(),
+            }}
           ></div>
           <div className="relative z-1 font-bold">
             {tasks.length ? `${countCompletedTasks} / ${tasks.length}` : `:-)`}
@@ -85,7 +139,7 @@ function Home() {
 
       <div className="w-full flex justify-end px-6 py-5 gap-8 right-0">
         <div
-          className="rounded-md px-3 py-1"
+          className="rounded-md px-3 py-1 fadeAnim"
           style={{
             backgroundColor: !completedFilter ? primaryColor : "transparent",
           }}
@@ -93,7 +147,7 @@ function Home() {
           <button onClick={() => setCompletedFilter(false)}>All</button>
         </div>
         <div
-          className="rounded-md px-3 py-1"
+          className="rounded-md px-3 py-1 fadeAnim"
           style={{
             backgroundColor: completedFilter ? primaryColor : "transparent",
           }}
@@ -104,11 +158,20 @@ function Home() {
 
       {/* task boxes */}
       <div className="flex flex-col px-6 gap-3 mt-4">
-        {error ? (
-          <div className="text-red-500 text-center">{error}</div>
-        ) : (
-          tasks.map((task) => <TaskBox key={task.id} task={task} />)
-        )}
+        <div className="text-red-500 text-center ">{error}</div>
+        {searchResults
+          .sort((task) => task.completed - 1)
+          .filter((task) => !completedFilter || task.completed)
+          .map((task) => (
+            <TaskBox
+              key={task.id}
+              task={task}
+              handleNewTaskCreation={handleNewTaskCreation}
+              handleTaskDeletion={handleTaskDeletion}
+              handleTaskCompletion={handleTaskCompletion}
+              handleEditedTitle={handleEditedTitle}
+            />
+          ))}
       </div>
 
       {/* Add new task button */}
